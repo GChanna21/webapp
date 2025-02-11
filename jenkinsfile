@@ -1,72 +1,41 @@
 pipeline {
-
     agent any
 
-
-
     stages {
-
         stage('Clone Repository') {
-
             steps {
-
                 git branch: 'main', url: 'https://github.com/GChanna21/webapp.git'
-
             }
-
         }
-
-
 
         stage('Build') {
-
             steps {
-
-                echo 'Building the Web App...'
-
-                sh 'ls -l'
-
+                echo 'Building the application...'
+                sh 'mkdir -p build && cp -r * build/'
             }
-
         }
 
-
-
-        stage('Test') {
-
+        stage('Archive') {
             steps {
-
-                echo 'Running Tests...'
-
-                sh 'echo "Tests Passed!"'
-
+                archiveArtifacts artifacts: 'build/**/*', fingerprint: true
             }
-
         }
-
-
 
         stage('Deploy') {
-
             steps {
-
-                echo 'Deploying Application...'
-
-                sh '''
-
-                sudo apt install -y nginx
-
-                sudo mv index.html /var/www/html/index.html
-
-                sudo systemctl restart nginx
-
-                '''
-
+                echo 'Deploying the application...'
+                sh 'cp -r build/* /var/www/html/'  // Update for your deployment setup
             }
-
         }
-
     }
 
+    post {
+        success {
+            echo 'Deployment successful!'
+        }
+        failure {
+            echo 'Deployment failed!'
+        }
+    }
 }
 
